@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Learning Assistant - Web版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+        }
+
+        .status {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+
+        .status-item {
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .sidebar h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .mode-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 0.95em;
+        }
+
+        .mode-btn:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn .icon {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        .mode-btn .desc {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #4ec9b0;
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            line-height: 1.6;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            border: 1px solid #e0e0e0;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 0.75em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-box textarea {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: none;
+            height: 60px;
+            transition: border-color 0.3s;
+        }
+
+        .input-box textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clear-btn {
+            padding: 10px 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .clear-btn:hover {
+            background: #d32f2f;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots span {
+            animation: blink 1.4s infinite both;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0; }
+            40% { opacity: 1; }
+        }
+
+        .usage-info {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.85em;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 代码样式 */
+        .message-content pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .message-content code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Claude Learning Assistant</h1>
+            <div class="status">
+                <div class="status-item" id="provider">智谱AI</div>
+                <div class="status-item" id="model">GLM-4.7</div>
+                <div class="status-item" id="tokens">0 tokens</div>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="sidebar">
+                <h3>选择模式</h3>
+                <button class="mode-btn active" data-mode="tutor">
+                    <div><span class="icon">🎓</span> 互动问答</div>
+                    <div class="desc">苏格拉底式教学引导</div>
+                </button>
+                <button class="mode-btn" data-mode="explainer">
+                    <div><span class="icon">📖</span> 代码解释</div>
+                    <div class="desc">深入理解代码原理</div>
+                </button>
+                <button class="mode-btn" data-mode="teacher">
+                    <div><span class="icon">📚</span> 概念讲解</div>
+                    <div class="desc">学习编程核心概念</div>
+                </button>
+                <button class="mode-btn" data-mode="generator">
+                    <div><span class="icon">💻</span> 代码生成</div>
+                    <div class="desc">生成代码示例</div>
+                </button>
+                <button class="clear-btn" id="clearBtn">清空对话</button>
+            </div>
+
+            <div class="chat-area">
+                <div class="messages" id="messages">
+                    <div class="message assistant">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            你好！我是 Claude Learning Assistant。请选择一种模式开始学习，或者直接向我提问吧！
+                            <div class="message-time">刚刚</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span> 正在思考...
+                </div>
+
+                <div class="input-area">
+                    <div class="input-box">
+                        <textarea id="userInput" placeholder="输入你的问题或代码..." rows="3"></textarea>
+                        <button class="send-btn" id="sendBtn">发送</button>
+                    </div>
+                </div>
+
+                <div class="usage-info">
+                    <span id="cost">成本: $0.000000</span>
+                    <span id="remaining">剩余: $0.50</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'tutor';
+
+        // 模式切换
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+
+                // 添加模式切换提示
+                addMessage('assistant', `已切换到${getModeName(currentMode)}模式`);
+            });
+        });
+
+        function getModeName(mode) {
+            const names = {
+                tutor: '互动问答',
+                explainer: '代码解释',
+                teacher: '概念讲解',
+                generator: '代码生成'
+            };
+            return names[mode] || mode;
+        }
+
+        // 发送消息
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // 显示用户消息
+            addMessage('user', message);
+            input.value = '';
+
+            // 显示加载状态
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('sendBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mode: currentMode,
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addMessage('assistant', data.response);
+                    updateStatus(data.usage, data.budget);
+                } else {
+                    addMessage('assistant', '抱歉，发生了错误：' + data.error);
+                }
+
+            } catch (error) {
+                addMessage('assistant', '网络错误：' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('sendBtn').disabled = false;
+                input.focus();
+            }
+        }
+
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+
+            const avatar = role === 'user' ? '👤' : '🤖';
+            const time = new Date().toLocaleTimeString('zh-CN');
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    ${formatContent(content)}
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function formatContent(content) {
+            // 简单的代码块格式化
+            content = content.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+            // 行内代码
+            content = content.replace(/`([^`]+)`/g, '<code>$1</code>');
+            // 换行
+            content = content.replace(/\n/g, '<br>');
+            return content;
+        }
+
+        function updateStatus(usage, budget) {
+            if (usage) {
+                document.getElementById('tokens').textContent = `${usage.totalTokens} tokens`;
+            }
+            if (budget) {
+                document.getElementById('cost').textContent = `成本: $${budget.currentCost.toFixed(6)}`;
+                document.getElementById('remaining').textContent = `剩余: $${budget.remaining.toFixed(4)}`;
+            }
+        }
+
+        // 清空对话
+        document.getElementById('clearBtn').addEventListener('click', async () => {
+            if (confirm('确定要清空对话历史吗？')) {
+                await fetch('/api/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: currentMode })
+                });
+
+                document.getElementById('messages').innerHTML = `
+                    <div class="message assistant">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            对话已清空。请继续提问！
+                            <div class="message-time">刚刚</div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // 加载初始状态
+        fetch('/api/status')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('provider').textContent = data.provider;
+                    document.getElementById('model').textContent = data.model;
+                    document.getElementById('tokens').textContent = `${data.tokens} tokens`;
+                    document.getElementById('cost').textContent = `成本: $${data.cost.toFixed(6)}`;
+                    document.getElementById('remaining').textContent = `剩余: $${data.remaining.toFixed(4)}`;
+                }
+            });
+    </script>
+</body>
+</html>

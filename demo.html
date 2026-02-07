@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Learning Assistant - 项目展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .header .version {
+            margin-top: 15px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .demo-box {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .demo-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .demo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .demo-dot.red { background: #ff5f56; }
+        .demo-dot.yellow { background: #ffbd2e; }
+        .demo-dot.green { background: #27c93f; }
+
+        .demo-content {
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre;
+        }
+
+        .demo-content .prompt { color: #4ec9b0; }
+        .demo-content .response { color: #dcdcaa; }
+        .demo-content .info { color: #569cd6; }
+        .demo-content .success { color: #6a9955; }
+
+        .structure {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .structure .folder { color: #667eea; font-weight: bold; }
+        .structure .file { color: #333; }
+        .structure .indent { margin-left: 20px; }
+
+        .cta {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tech-badge {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8em; }
+            .content { padding: 20px; }
+            .features { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Claude Learning Assistant</h1>
+            <p class="subtitle">智能JavaScript学习助手 - 由Claude API驱动</p>
+            <div class="version">v1.0.0</div>
+        </div>
+
+        <div class="content">
+            <!-- 项目简介 -->
+            <div class="section">
+                <h2>项目简介</h2>
+                <p>Claude Learning Assistant 是一个实用的命令行JavaScript学习助手，通过集成大语言模型API，为学习者提供智能化的学习体验。项目采用模块化设计，支持多种学习模式，帮助开发者深入理解JavaScript编程。</p>
+
+                <div class="tech-stack">
+                    <span class="tech-badge">Node.js (>=18)</span>
+                    <span class="tech-badge">@anthropic-ai/sdk</span>
+                    <span class="tech-badge">智谱AI GLM-4.7</span>
+                    <span class="tech-badge">ES6+ Modules</span>
+                </div>
+            </div>
+
+            <!-- 核心功能 -->
+            <div class="section">
+                <h2>核心功能</h2>
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="icon">🎓</div>
+                        <h3>互动问答</h3>
+                        <p>苏格拉底式教学引导，通过提问帮助学习者独立思考，培养解决问题的能力。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📖</div>
+                        <h3>代码解释</h3>
+                        <p>深入分析代码工作原理，逐段解释关键逻辑，指出重要语法特性和改进建议。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📚</div>
+                        <h3>概念讲解</h3>
+                        <p>用简单语言解释编程概念，提供生活化类比，展示实用代码示例和常见误区。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">💻</div>
+                        <h3>代码生成</h3>
+                        <p>根据需求描述生成符合最佳实践的代码，包含注释和示例，考虑边界情况。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 演示展示 -->
+            <div class="section">
+                <h2>运行演示</h2>
+                <div class="demo-box">
+                    <div class="demo-header">
+                        <div class="demo-dot red"></div>
+                        <div class="demo-dot yellow"></div>
+                        <div class="demo-dot green"></div>
+                    </div>
+                    <div class="demo-content"><span class="info">$</span> npm start
+
+<span class="success">╔════════════════════════════════════════════════════════════════╗</span>
+<span class="success">║                                                                  ║</span>
+<span class="success">║        🤖 Claude Learning Assistant - JavaScript学习助手         ║</span>
+<span class="success">║                                                                  ║</span>
+<span class="success">║                  由 Claude API 驱动 v1.0.0                      ║</span>
+<span class="success">║                                                                  ║</span>
+<span class="success">╚════════════════════════════════════════════════════════════════╝</span>
+
+<span class="info">请选择功能 (1-6):</span> <span class="prompt">4</span>
+
+<span class="success">╔══════════════════════════════════════════════════════════╗</span>
+<span class="success">║           🎓 互动问答模式 - 苏格拉底式学习               ║</span>
+<span class="success">╠══════════════════════════════════════════════════════════╣</span>
+<span class="success">║                                                          ║</span>
+<span class="success">║  作为你的编程导师，我会通过提问引导你思考，              ║</span>
+<span class="success">║  而不是直接给出答案。这样能帮助你真正理解。              ║</span>
+<span class="success">║                                                          ║</span>
+<span class="success">╚══════════════════════════════════════════════════════════╝</span>
+
+<span class="prompt">👤 你:</span> 什么是闭包？
+
+<span class="response">🤖 Claude:</span> 闭包是JavaScript中一个重要的概念。让我通过几个问题帮助你理解：
+
+1. 你知道函数可以访问其外部作用域的变量吗？
+2. 如果一个函数返回了另一个函数，你觉得内部函数还能访问外部函数的变量吗？
+
+请思考这两个问题，然后告诉我你的理解...</div>
+                </div>
+            </div>
+
+            <!-- 项目结构 -->
+            <div class="section">
+                <h2>项目结构</h2>
+                <div class="structure">
+                    <div class="folder">claude-learning-assistant/</div>
+                    <div class="indent">
+                        <div class="folder">src/</div>
+                        <div class="indent">
+                            <div class="folder">core/</div>
+                            <div class="indent">
+                                <div class="file">ClaudeClient.js - API客户端封装</div>
+                                <div class="file">ConversationManager.js - 对话管理</div>
+                                <div class="file">TokenTracker.js - Token追踪</div>
+                            </div>
+                            <div class="folder">features/</div>
+                            <div class="indent">
+                                <div class="file">BaseFeature.js - 功能基类</div>
+                                <div class="file">InteractiveTutor.js - 互动问答</div>
+                                <div class="file">CodeExplainer.js - 代码解释</div>
+                                <div class="file">ConceptTeacher.js - 概念讲解</div>
+                                <div class="file">CodeGenerator.js - 代码生成</div>
+                            </div>
+                            <div class="folder">storage/</div>
+                            <div class="indent">
+                                <div class="file">HistoryManager.js - 历史记录管理</div>
+                            </div>
+                            <div class="folder">ui/</div>
+                            <div class="indent">
+                                <div class="file">Display.js - 显示模块</div>
+                                <div class="file">Menu.js - 菜单处理</div>
+                            </div>
+                            <div class="folder">utils/</div>
+                            <div class="indent">
+                                <div class="file">cost-calculator.js - 成本计算</div>
+                                <div class="file">logger.js - 日志工具</div>
+                            </div>
+                            <div class="file">index.js - 主入口</div>
+                        </div>
+                        <div class="folder">prompts/</div>
+                        <div class="indent">
+                            <div class="file">tutor.txt - 导师提示词</div>
+                            <div class="file">code-explainer.txt - 代码解释提示词</div>
+                            <div class="file">concept-teacher.txt - 概念讲解提示词</div>
+                            <div class="file">code-generator.txt - 代码生成提示词</div>
+                        </div>
+                        <div class="folder">test/</div>
+                        <div class="indent">
+                            <div class="file">... 测试文件</div>
+                        </div>
+                        <div class="file">config.js - 配置管理</div>
+                        <div class="file">package.json</div>
+                        <div class="file">README.md</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速开始 -->
+            <div class="section">
+                <h2>快速开始</h2>
+                <div class="demo-box">
+                    <div class="demo-header">
+                        <div class="demo-dot red"></div>
+                        <div class="demo-dot yellow"></div>
+                        <div class="demo-dot green"></div>
+                    </div>
+                    <div class="demo-content"><span class="comment"># 1. 安装依赖</span>
+<span class="info">$</span> npm install
+
+<span class="comment"># 2. 配置API密钥</span>
+<span class="info">$</span> cp .env.example .env
+<span class="info">$</span> # 编辑.env文件，填入智谱AI的API Token
+
+<span class="comment"># 3. 启动程序</span>
+<span class="info">$</span> npm start</div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta">
+                <a href="https://github.com" class="cta-button">查看源代码</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Claude Learning Assistant | 由 Claude API 驱动 | 支持智谱AI GLM-4.7</p>
+        </div>
+    </div>
+</body>
+</html>
